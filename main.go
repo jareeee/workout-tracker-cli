@@ -1,50 +1,49 @@
-// main.go
 package main
 
 import (
 	"fmt"
 )
 
-const Nmax = 100
+const Nmax = 1000
 
-// Struct utama untuk histori workout
-type workout_activity struct {
-	id              int
-	tanggal         string
-	jenis           string
-	durasi          int
-	kalori_terbakar int
-	kategori        string
-}
-
-// Struct data latihan
 type latihan struct {
 	nama     string
 	kategori string
 }
 
-// Global variables
-var workout_activities [Nmax]workout_activity
-var jumlahData int = 0
-var daftar_latihan = [15]latihan{
-	{"Dumbbell bench press", "Strength"},
-	{"Squat", "Strength"},
-	{"Deadlift", "Strength"},
-	{"Dumbbell goblet squat", "Strength"},
-	{"Dumbbell lateral raise", "Strength"},
-	{"Dumbbell shoulder press", "Strength"},
-	{"Leg curl", "Strength"},
-	{"Bulgarian split squat", "Strength"},
-	{"Dumbbell flys", "Strength"},
-	{"Jumping lunge", "Cardio"},
-	{"Pushups", "Strength"},
-	{"Barbell curl", "Strength"},
-	{"Barbell deadlift", "Strength"},
-	{"Bent-over row", "Strength"},
-	{"Incline dumbbell bench press", "Strength"},
+type workout_activity struct {
+	id              int
+	tanggal         string
+	jenis           string 
+	durasi          int
+	kalori_terbakar int
+	kategori        string
 }
 
 func main() {
+	const jumlah_latihan = 15
+
+	var daftar_latihan = [jumlah_latihan]latihan{
+		{"Dumbbell bench press", "Strength"},
+		{"Squat", "Strength"},
+		{"Deadlift", "Strength"},
+		{"Dumbbell goblet squat", "Strength"},
+		{"Dumbbell lateral raise", "Strength"},
+		{"Dumbbell shoulder press", "Strength"},
+		{"Leg curl", "Strength"},
+		{"Bulgarian split squat", "Strength"},
+		{"Dumbbell flys", "Strength"},
+		{"Jumping lunge", "Cardio"},
+		{"Pushups", "Strength"},
+		{"Barbell curl", "Strength"},
+		{"Barbell deadlift", "Strength"},
+		{"Bent-over row", "Strength"},
+		{"Incline dumbbell bench press", "Strength"},
+	}
+
+	var workout_activities [Nmax]workout_activity
+	var jumlah_data int = 0
+
 	fmt.Println("==================================================")
 	fmt.Println("            SELAMAT DATANG DI")
 	fmt.Println("              WORKOUT TRACKER")
@@ -67,12 +66,12 @@ func main() {
 		fmt.Println("9. Keluar")
 		fmt.Print("\nPilih menu: ")
 
-		var pilihan int
-		fmt.Scan(&pilihan)
+		var pilihan_menu int
+		fmt.Scanln(&pilihan_menu)
 
-		switch pilihan {
+		switch pilihan_menu {
 		case 1:
-			fmt.Println("[Tambah Workout] - fitur belum diimplementasikan")
+			tambahWorkout(&workout_activities, &jumlah_data, daftar_latihan[:], jumlah_latihan)
 		case 2:
 			fmt.Println("[Edit Workout] - fitur belum diimplementasikan")
 		case 3:
@@ -94,4 +93,74 @@ func main() {
 			fmt.Println("Pilihan tidak valid. Silakan coba lagi.")
 		}
 	}
+}
+
+func tambahWorkout(activities *[Nmax]workout_activity, jumlah_data *int, available_latihan []latihan, num_available_latihan int) {
+	var pilihan_latihan, durasi, kalori int
+	var tanggal string
+	var selected_latihan latihan
+
+	if *jumlah_data >= Nmax {
+		fmt.Println("History workout penuh.")
+		return
+	}
+
+	fmt.Println("=== Tambah Workout ===")
+
+	pilihan_latihan = inputPilihan(num_available_latihan, available_latihan)
+	tanggal = inputTanggal()
+	durasi = inputPositif("durasi (menit)")
+	kalori = inputPositif("kalori terbakar")
+
+	selected_latihan = available_latihan[pilihan_latihan-1]
+
+	activities[*jumlah_data] = workout_activity{
+		id:              *jumlah_data + 1,
+		tanggal:         tanggal,
+		jenis:           selected_latihan.nama,
+		durasi:          durasi,
+		kalori_terbakar: kalori,
+		kategori:        selected_latihan.kategori,
+	}
+
+	(*jumlah_data)++
+	fmt.Println("Workout berhasil ditambahkan.")
+}
+
+func inputPilihan(num_available_latihan int, available_latihan_list []latihan) int {
+	var i int
+	var pilihan int
+
+	fmt.Println("Pilih jenis latihan:")
+	for i < num_available_latihan {
+		fmt.Printf("%2d. %-30s (%s)\n", i+1, available_latihan_list[i].nama, available_latihan_list[i].kategori)
+		i++
+	}
+	fmt.Print("Masukkan nomor latihan: ")
+	fmt.Scan(&pilihan)
+
+	if pilihan < 1 || pilihan > num_available_latihan {
+		fmt.Println("Nomor latihan tidak valid.")
+		return inputPilihan(num_available_latihan, available_latihan_list)
+	}
+	return pilihan
+}
+
+func inputTanggal() string {
+	var tanggal string
+	fmt.Print("Masukkan tanggal (YYYY-MM-DD): ")
+	fmt.Scan(&tanggal)
+	return tanggal
+}
+
+func inputPositif(label string) int {
+	var val int
+	fmt.Printf("Masukkan %s: ", label)
+	fmt.Scan(&val)
+
+	if val <= 0 {
+		fmt.Printf("%s tidak boleh nol atau negatif.\n", label)
+		return inputPositif(label)
+	}
+	return val
 }
