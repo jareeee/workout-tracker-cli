@@ -44,12 +44,10 @@ func main() {
 	var workout_activities [Nmax]workout_activity
 	var jumlah_data int = 0
 
-	fmt.Println("==================================================")
-	fmt.Println("            SELAMAT DATANG DI")
-	fmt.Println("              WORKOUT TRACKER")
-	fmt.Println("==================================================")
-	fmt.Println("Mencatat latihan. Meningkatkan performa. Menjadi lebih kuat.")
-	fmt.Println("--------------------------------------------------")
+	fmt.Println("============================")
+	fmt.Println("     SELAMAT DATANG DI")
+	fmt.Println("     WORKOUT TRACKER")
+	fmt.Println("============================")
 
 	for {
 		fmt.Println("\n============================")
@@ -73,7 +71,7 @@ func main() {
 		case 1:
 			tambahWorkout(&workout_activities, &jumlah_data, daftar_latihan[:], jumlah_latihan)
 		case 2:
-			fmt.Println("[Edit Workout] - fitur belum diimplementasikan")
+			editWorkout(&workout_activities, jumlah_data, daftar_latihan[:], jumlah_latihan)
 		case 3:
 			fmt.Println("[Hapus Workout] - fitur belum diimplementasikan")
 		case 4:
@@ -115,7 +113,7 @@ func tambahWorkout(activities *[Nmax]workout_activity, jumlah_data *int, availab
 	selected_latihan = available_latihan[pilihan_latihan-1]
 
 	activities[*jumlah_data] = workout_activity{
-		id:              *jumlah_data + 1,
+		id:              *jumlah_data,
 		tanggal:         tanggal,
 		jenis:           selected_latihan.nama,
 		durasi:          durasi,
@@ -131,7 +129,7 @@ func inputPilihan(num_available_latihan int, available_latihan_list []latihan) i
 	var i int
 	var pilihan int
 
-	fmt.Println("Pilih jenis latihan:")
+	fmt.Println("\nPilih jenis latihan:")
 	for i < num_available_latihan {
 		fmt.Printf("%2d. %-30s (%s)\n", i+1, available_latihan_list[i].nama, available_latihan_list[i].kategori)
 		i++
@@ -163,4 +161,84 @@ func inputPositif(label string) int {
 		return inputPositif(label)
 	}
 	return val
+}
+
+func listWorkout(activities *[Nmax]workout_activity, jumlah_data int) {
+	var i int
+	fmt.Println("========== Daftar Workout ==========")
+	i = 0
+	fmt.Println("ID | Tanggal     | Jenis Latihan                  | Durasi (menit) | Kalori Terbakar | Kategori")
+	for i < jumlah_data {
+		fmt.Printf("%2d | %-11s | %-30s | %14d | %15d | %s\n",
+			activities[i].id,
+			activities[i].tanggal,
+			activities[i].jenis,
+			activities[i].durasi,
+			activities[i].kalori_terbakar,
+			activities[i].kategori)
+		i++
+	}
+}
+
+func editWorkout(activities *[Nmax]workout_activity, jumlah_data int, available_latihan []latihan, num_available_latihan int) {
+	listWorkout(&(*activities), jumlah_data)
+
+	var id int
+	fmt.Print("Masukkan ID workout yang ingin diedit: ")
+	fmt.Scan(&id)
+	if id < 1 || id > jumlah_data {
+		fmt.Println("ID tidak valid. Silakan coba lagi.")
+		return
+	}
+	var tanggal, jenis_latihan string
+	var durasi, kalori, pilihan_latihan int
+
+	fmt.Println("Ingin edit tanggal? [Ya/Tidak]")
+	var edit_tanggal string
+	fmt.Scan(&edit_tanggal)
+	if edit_tanggal == "Tidak" || edit_tanggal == "tidak" {
+		tanggal = activities[id].tanggal
+	} else {
+		tanggal = inputTanggal()
+	}
+
+	fmt.Println("Ingin edit jenis latihan? [Ya/Tidak]\n")
+	var edit_latihan string
+	fmt.Scan(&edit_latihan)
+	if edit_latihan == "Tidak" || edit_latihan == "tidak" {
+		jenis_latihan = activities[id].jenis
+		kategori = activities[id].kategori
+	} else {
+		pilihan_latihan := inputPilihan(num_available_latihan, available_latihan)
+		jenis_latihan = available_latihan[pilihan_latihan-1].nama
+		kategori = available_latihan[pilihan_latihan-1].kategori
+	}
+
+	fmt.Println("Ingin edit durasi? [Ya/Tidak]")
+	var edit_durasi string
+	fmt.Scan(&edit_durasi)
+	if edit_durasi == "Tidak" || edit_durasi == "tidak" {
+		durasi = activities[id].durasi
+	} else {
+		durasi = inputPositif("durasi (menit)")
+	}
+
+	fmt.Println("Ingin edit kalori terbakar? [Ya/Tidak]")
+	var edit_kalori string
+	fmt.Scan(&edit_kalori)
+	if edit_kalori == "Tidak" || edit_kalori == "tidak" {
+		kalori = activities[id].kalori_terbakar
+	} else {
+		kalori = inputPositif("kalori terbakar")
+	}
+
+	activities[id] = workout_activity{
+		id:              id,
+		tanggal:         tanggal,
+		jenis:           jenis_latihan,
+		durasi:          durasi,
+		kalori_terbakar: kalori,
+		kategori:        kategori,
+	}
+	fmt.Println("Workout berhasil diedit.")
 }
