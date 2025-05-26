@@ -80,7 +80,7 @@ func main() {
 		case 5:
 			cariLatihan(daftar_latihan[:])
 		case 6:
-			fmt.Println("[Urutkan History Workout] - fitur belum diimplementasikan")
+			urutkanHistoryWorkout(workout_activities, jumlah_data)
 		case 7:
 			fmt.Println("[Lihat Laporan] - fitur belum diimplementasikan")
 		case 8:
@@ -406,3 +406,102 @@ func cariLatihanByField(field, keyword string, daftar_latihan []latihan) {
 	}
 }
 
+func urutkanHistoryWorkout(workout_activities [Nmax]workout_activity, jumlah_data int) {
+	if jumlah_data == 0 {
+		fmt.Println("Belum ada data workout.")
+		return
+	}
+
+	fmt.Println("\n=== Urutkan History Workout ===")
+	fmt.Println("Pilih kriteria pengurutan:")
+	fmt.Println("1. Durasi")
+	fmt.Println("2. Kalori Terbakar")
+	fmt.Print("Pilih: ")
+
+	var kriteria int
+	fmt.Scan(&kriteria)
+
+	fmt.Println("Pilih urutan:")
+	fmt.Println("1. Ascending")
+	fmt.Println("2. Descending")
+	fmt.Print("Pilih: ")
+
+	var urutan int
+	fmt.Scan(&urutan)
+
+	sorted_activities := workout_activities
+	switch urutan {
+	case 1:
+		selectionSort(kriteria, &sorted_activities, jumlah_data)
+	case 2:
+		insertionSort(kriteria, &sorted_activities, jumlah_data)
+	default:
+		fmt.Println("Pilihan urutan tidak valid.")
+		return
+	}
+
+	fmt.Println("Data setelah diurutkan:")
+	tampilkanWorkout(sorted_activities, jumlah_data)
+}
+
+func selectionSort(kriteria int, workout_activities *[Nmax]workout_activity, jumlah_data int) {
+	var i, min_idx, j int
+	for i = 0; i < jumlah_data-1; i++ {
+		min_idx = i
+		for j = i + 1; j < jumlah_data; j++ {
+			if compare(workout_activities[j], workout_activities[min_idx], kriteria, true) {
+				min_idx = j
+			}
+		}
+		workout_activities[i], workout_activities[min_idx] = workout_activities[min_idx], workout_activities[i]
+	}
+}
+
+func insertionSort(kriteria int, workout_activities *[Nmax]workout_activity, jumlah_data int) {
+	for i := 1; i < jumlah_data; i++ {
+		key := workout_activities[i]
+		j := i - 1
+		for j >= 0 && compare(key, workout_activities[j], kriteria, false) {
+			workout_activities[j+1] = workout_activities[j]
+			j--
+		}
+		workout_activities[j+1] = key
+	}
+}
+
+func compare(a, b workout_activity, kriteria int, asc bool) bool {
+	switch kriteria {
+	case 1:
+		if asc {
+			return a.durasi < b.durasi
+		} else {
+			return a.durasi > b.durasi
+		}
+	case 2:
+		if asc {
+			return a.kalori_terbakar < b.kalori_terbakar
+		} else {
+			return a.kalori_terbakar > b.kalori_terbakar
+		}
+	}
+	return false
+}
+
+func tampilkanWorkout(workout_activities [Nmax]workout_activity, jumlahData int) {
+	var i int
+	var w workout_activity
+	fmt.Println("\nDaftar Workout:")
+	fmt.Println("ID | Tanggal     | Jenis Latihan                  | Durasi (menit) | Kalori Terbakar | Kategori")
+	for i = 0; i < jumlahData; i++ {
+		w = workout_activities[i]
+		fmt.Printf("%2d | %-11s | %-30s | %14d | %15d | %s\n",
+		w.id,
+		w.tanggal,
+		w.jenis,
+		w.durasi,
+		w.kalori_terbakar,
+		w.kategori)
+	}
+}
+
+	
