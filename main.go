@@ -78,7 +78,7 @@ func main() {
 		case 4:
       cariHistoryWorkout(workout_activities, jumlah_data)
 		case 5:
-			fmt.Println("[Cari Latihan] - fitur belum diimplementasikan")
+			cariLatihan(daftar_latihan[:])
 		case 6:
 			fmt.Println("[Urutkan History Workout] - fitur belum diimplementasikan")
 		case 7:
@@ -345,7 +345,6 @@ func cariWorkoutByField(field, keyword string, workout_activities [Nmax]workout_
 		}
 		if strings.ToLower(fieldValue) == keyword {
 			w := workout_activities[i]
-			
 			fmt.Printf("[%d] %s | %s | %d menit | %d kalori\n", w.id, w.tanggal, w.jenis, w.durasi, w.kalori_terbakar)
 			found = true
 		}
@@ -355,3 +354,55 @@ func cariWorkoutByField(field, keyword string, workout_activities [Nmax]workout_
 		fmt.Println("Data tidak ditemukan.")
 	}
 }
+
+func cariLatihan(daftar_latihan []latihan) {
+	fmt.Println("\n=== Cari Latihan ===")
+	fmt.Println("Cari berdasarkan:")
+	fmt.Println("1. Jenis")
+	fmt.Println("2. Kategori")
+	fmt.Print("Pilih opsi: ")
+
+	var opsi int
+	fmt.Scan(&opsi)
+
+	var keyword string
+	switch opsi {
+	case 1:
+		fmt.Print("Masukkan jenis latihan: ")
+		fmt.Scan(&keyword)
+		cariLatihanByField("nama", keyword, daftar_latihan)
+	case 2:
+		fmt.Print("Masukkan kategori latihan: ")
+		fmt.Scan(&keyword)
+		cariLatihanByField("kategori", keyword, daftar_latihan)
+	default:
+		fmt.Println("Pilihan tidak valid.")
+	}
+}
+
+func cariLatihanByField(field, keyword string, daftar_latihan []latihan) {
+	var found bool
+	keyword = strings.ToLower(keyword)
+	found = false
+
+	fmt.Println("\nHasil pencarian:")
+	for _, l := range daftar_latihan {
+		var fieldValue string
+		switch field {
+		case "nama":
+			fieldValue = l.nama
+		case "kategori":
+			fieldValue = l.kategori
+		}
+
+		if strings.ToLower(fieldValue) == keyword {
+			fmt.Printf("- %s (%s)\n", l.nama, l.kategori)
+			found = true
+		}
+	}
+
+	if !found {
+		fmt.Println("Data tidak ditemukan, periksa kembali input yang dimasukkan.")
+	}
+}
+
