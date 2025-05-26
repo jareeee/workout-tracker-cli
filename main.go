@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 )
 
 const Nmax = 1000
@@ -73,7 +74,7 @@ func main() {
 		case 2:
 			editWorkout(&workout_activities, jumlah_data, daftar_latihan[:], jumlah_latihan)
 		case 3:
-			fmt.Println("[Hapus Workout] - fitur belum diimplementasikan")
+			hapusWorkout(&workout_activities, &jumlah_data)
 		case 4:
 			fmt.Println("[Cari History Workout] - fitur belum diimplementasikan")
 		case 5:
@@ -186,11 +187,11 @@ func editWorkout(activities *[Nmax]workout_activity, jumlah_data int, available_
 	var id int
 	fmt.Print("Masukkan ID workout yang ingin diedit: ")
 	fmt.Scan(&id)
-	if id < 1 || id > jumlah_data {
+	if id < 0 || id > jumlah_data {
 		fmt.Println("ID tidak valid. Silakan coba lagi.")
 		return
 	}
-	var tanggal, jenis_latihan string
+	var tanggal, jenis_latihan, kategori string
 	var durasi, kalori, pilihan_latihan int
 
 	fmt.Println("Ingin edit tanggal? [Ya/Tidak]")
@@ -209,7 +210,7 @@ func editWorkout(activities *[Nmax]workout_activity, jumlah_data int, available_
 		jenis_latihan = activities[id].jenis
 		kategori = activities[id].kategori
 	} else {
-		pilihan_latihan := inputPilihan(num_available_latihan, available_latihan)
+		pilihan_latihan = inputPilihan(num_available_latihan, available_latihan)
 		jenis_latihan = available_latihan[pilihan_latihan-1].nama
 		kategori = available_latihan[pilihan_latihan-1].kategori
 	}
@@ -241,4 +242,59 @@ func editWorkout(activities *[Nmax]workout_activity, jumlah_data int, available_
 		kategori:        kategori,
 	}
 	fmt.Println("Workout berhasil diedit.")
+}
+
+func hapusWorkout(workout_activities *[Nmax]workout_activity, jumlah_data *int) {
+	var id, index int
+	if *jumlah_data == 0 {
+		fmt.Println("Belum ada data workout untuk dihapus.")
+		return
+	}
+	fmt.Println("\n=== Hapus Workout ===")
+	listWorkout(&(*workout_activities), *jumlah_data)
+
+	fmt.Print("Masukkan ID workout yang ingin dihapus: ")
+	fmt.Scan(&id)
+	if id < 0 || id > *jumlah_data {
+		fmt.Println("ID tidak valid. Silakan coba lagi.")
+		return
+	}
+
+	index = binarySearchByID(id, *jumlah_data, *workout_activities)
+	if index == -1 {
+		fmt.Println("ID tidak ditemukan.")
+		return
+	}
+
+	fmt.Printf("Yakin ingin menghapus workout ID %d (%s)? (Ya/Tidak): ", workout_activities[index].id, workout_activities[index].jenis)
+	var konfirmasi string
+	fmt.Scan(&konfirmasi)
+	if strings.ToLower(konfirmasi) != "ya" {
+		fmt.Println("Penghapusan dibatalkan.")
+		return
+	}
+
+	for i := index; i < *jumlah_data-1; i++ {
+		workout_activities[i] = workout_activities[i+1]
+	}
+
+	(*jumlah_data)--
+	fmt.Println("Workout berhasil dihapus.")
+}
+
+func binarySearchByID(id, jumlah_data int, workout_activities [Nmax]workout_activity ) int {
+	low := 0
+	high := jumlah_data - 1
+
+	for low <= high {
+		mid := (low + high) / 2
+		if workout_activities[mid].id == id {
+			return mid
+		} else if workout_activities[mid].id < id {
+			low = mid + 1
+		} else {
+			high = mid - 1
+		}
+	}
+	return -1
 }
