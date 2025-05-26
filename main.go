@@ -76,7 +76,7 @@ func main() {
 		case 3:
 			hapusWorkout(&workout_activities, &jumlah_data)
 		case 4:
-			fmt.Println("[Cari History Workout] - fitur belum diimplementasikan")
+      cariHistoryWorkout(workout_activities, jumlah_data)
 		case 5:
 			fmt.Println("[Cari Latihan] - fitur belum diimplementasikan")
 		case 6:
@@ -297,4 +297,61 @@ func binarySearchByID(id, jumlah_data int, workout_activities [Nmax]workout_acti
 		}
 	}
 	return -1
+}
+
+func cariHistoryWorkout(workout_activities [Nmax]workout_activity, jumlah_data int) {
+	if jumlah_data == 0 {
+		fmt.Println("Belum ada data workout.")
+		return
+	}
+
+	fmt.Println("\n=== Cari History Workout ===")
+	fmt.Println("Cari berdasarkan:")
+	fmt.Println("1. Jenis")
+	fmt.Println("2. Kategori")
+	fmt.Print("Pilih opsi: ")
+
+	var opsi int
+	fmt.Scan(&opsi)
+
+	var keyword string
+	switch opsi {
+	case 1:
+		fmt.Print("Masukkan jenis latihan: ")
+		fmt.Scan(&keyword)
+		cariWorkoutByField("jenis", keyword, workout_activities, jumlah_data)
+	case 2:
+		fmt.Print("Masukkan kategori latihan: ")
+		fmt.Scan(&keyword)
+		cariWorkoutByField("kategori", keyword, workout_activities, jumlah_data)
+	default:
+		fmt.Println("Pilihan tidak valid.")
+	}
+}
+
+func cariWorkoutByField(field, keyword string, workout_activities [Nmax]workout_activity, jumlah_data int) {
+	var found bool
+	keyword = strings.ToLower(keyword)
+	found = false
+
+	fmt.Println("\nHasil pencarian:")
+	for i := 0; i < jumlah_data; i++ {
+		var fieldValue string
+		switch field {
+		case "jenis":
+			fieldValue = workout_activities[i].jenis
+		case "kategori":
+			fieldValue = workout_activities[i].kategori
+		}
+		if strings.ToLower(fieldValue) == keyword {
+			w := workout_activities[i]
+			
+			fmt.Printf("[%d] %s | %s | %d menit | %d kalori\n", w.id, w.tanggal, w.jenis, w.durasi, w.kalori_terbakar)
+			found = true
+		}
+	}
+
+	if !found {
+		fmt.Println("Data tidak ditemukan.")
+	}
 }
