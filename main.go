@@ -22,6 +22,12 @@ type workout_activity struct {
 	kategori        string
 }
 
+type freqLatihan struct {
+    nama     string
+    kategori string
+    freq     int
+}
+
 func main() {
 	const jumlah_latihan = 15
 
@@ -85,7 +91,7 @@ func main() {
 		case 7:
 			lihatLaporan(workout_activities, jumlah_data)
 		case 8:
-			fmt.Println("[Rekomendasi Workout] - fitur belum diimplementasikan")
+			    rekomendasiWorkout(&workout_activities, jumlah_data, daftar_latihan[:])
 		case 9:
 			fmt.Println("Keluar dari program.")
 			return
@@ -586,5 +592,46 @@ func hitungKaloriDalamPeriode(workout_activities [Nmax]workout_activity, jumlah_
     fmt.Printf("\nTotal kalori terbakar dalam periode %s hingga %s adalah %d kalori.\n", tanggal_awal, tanggal_akhir, total_kalori)
 }
 
+func rekomendasiWorkout(workout_activities *[Nmax]workout_activity, jumlah_data int, daftar_latihan []latihan) {
+	frekuensi_list := hitungFrekuensi(workout_activities, jumlah_data, daftar_latihan)
+  urutkanWorkout(&frekuensi_list)
 
+	fmt.Println("\nRekomendasi Workout:")
+	for i := 0; i < 3; i++ {
+		fmt.Printf("%d. %s (%s) - sudah dilakukan %d kali\n", i+1, frekuensi_list[i].nama, frekuensi_list[i].kategori, frekuensi_list[i].freq)
+	}
+}
+
+func hitungFrekuensi(workout_activities *[Nmax]workout_activity, jumlah_data int, daftar_latihan []latihan) [15]freqLatihan {
+	var frekuensi_list [15]freqLatihan
+	var i, j, count int
+	var lat latihan
+
+	for i, lat = range daftar_latihan {
+		count = 0
+		for j = 0; j < jumlah_data; j++ {
+			if strings.ToLower(workout_activities[j].jenis) == strings.ToLower(lat.nama) {
+				count++
+			}
+		}
+		frekuensi_list[i] = freqLatihan{nama: lat.nama, kategori: lat.kategori, freq: count}
+	}
+
+	return frekuensi_list
+}
+
+func urutkanWorkout(frekuensi_list *[15]freqLatihan) {
+	var i, j int
+	var key freqLatihan
+
+	for i = 1; i < len(frekuensi_list); i++ {
+		key = frekuensi_list[i]
+		j = i - 1
+		for j >= 0 && frekuensi_list[j].freq > key.freq {
+			frekuensi_list[j+1] = frekuensi_list[j]
+			j--
+		}
+		frekuensi_list[j + 1] = key
+	}
+}
 	
