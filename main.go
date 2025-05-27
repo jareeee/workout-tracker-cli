@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 const Nmax = 1000
@@ -82,7 +83,7 @@ func main() {
 		case 6:
 			urutkanHistoryWorkout(workout_activities, jumlah_data)
 		case 7:
-			fmt.Println("[Lihat Laporan] - fitur belum diimplementasikan")
+			lihatLaporan(workout_activities, jumlah_data)
 		case 8:
 			fmt.Println("[Rekomendasi Workout] - fitur belum diimplementasikan")
 		case 9:
@@ -503,5 +504,87 @@ func tampilkanWorkout(workout_activities [Nmax]workout_activity, jumlahData int)
 		w.kategori)
 	}
 }
+
+func lihatLaporan(workout_activities [Nmax]workout_activity, jumlah_data int) {
+	if jumlah_data == 0 {
+		fmt.Println("Belum ada data workout.")
+		return
+	}
+	
+	fmt.Println("\n=== Laporan Workout ===")
+	fmt.Println("Pilih laporan yang ingin ditampilkan:")
+	fmt.Println("1. Tampilkan 10 aktivitas workout terakhir")
+	fmt.Println("2. Hitung kalori yang terbakar pada periode tertentu")
+	fmt.Print("Pilih laporan: ")
+	
+	var pilih_laporan int
+	fmt.Scan(&pilih_laporan)
+
+	if pilih_laporan == 1 {
+		tampilkan10AktivitasTerakhir(workout_activities, jumlah_data)
+	} else if pilih_laporan == 2 {
+		hitungKaloriDalamPeriode(workout_activities, jumlah_data)
+	} else {
+		fmt.Println("Pilihan tidak valid.")
+		return
+	}
+}
+
+func tampilkan10AktivitasTerakhir(workout_activities [Nmax]workout_activity, jumlah_data int) {
+	var start, end, i int
+  fmt.Println("\n10 Aktivitas Terakhir:")
+  start = jumlah_data - 1
+  end = start - 9
+  if end < 0 {
+      end = 0
+  }
+
+	fmt.Println("ID | Tanggal     | Jenis Latihan                  | Durasi (menit) | Kalori Terbakar | Kategori")
+  for i = start; i >= end; i-- {
+    w := workout_activities[i]
+    fmt.Printf("%2d | %-11s | %-30s | %14d | %15d | %s\n",
+			w.id,
+			w.tanggal,
+			w.jenis,
+			w.durasi,
+			w.kalori_terbakar,
+			w.kategori)
+  }
+}
+
+func hitungKaloriDalamPeriode(workout_activities [Nmax]workout_activity, jumlah_data int) {
+    var tanggal_awal, tanggal_akhir, layout string
+		var tData, tAwal, tAkhir time.Time
+		var err error
+
+    fmt.Println("\nMasukkan tanggal awal (YYYY-MM-DD): ")
+    fmt.Scan(&tanggal_awal)
+    fmt.Println("Masukkan tanggal akhir (YYYY-MM-DD): ")
+    fmt.Scan(&tanggal_akhir)
+
+    layout = "2006-01-02"
+    tAwal, err = time.Parse(layout, tanggal_awal)
+    if err != nil {
+        fmt.Println("Format tanggal awal tidak valid.")
+        return
+    }
+    tAkhir, err = time.Parse(layout, tanggal_akhir)
+    if err != nil {
+        fmt.Println("Format tanggal akhir tidak valid.")
+        return
+    }
+
+		var total_kalori, i int
+    total_kalori = 0
+    for i = 0; i < jumlah_data; i++ {
+        tData, err = time.Parse(layout, workout_activities[i].tanggal)
+        if err == nil && (tData.Equal(tAwal) || tData.After(tAwal)) && (tData.Equal(tAkhir) || tData.Before(tAkhir)) {
+            total_kalori += workout_activities[i].kalori_terbakar
+        }
+    }
+
+    fmt.Printf("\nTotal kalori terbakar dalam periode %s hingga %s adalah %d kalori.\n", tanggal_awal, tanggal_akhir, total_kalori)
+}
+
 
 	
